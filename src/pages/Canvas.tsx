@@ -9,7 +9,6 @@ export default function Canvas() {
   const [columnLineInput, setColumnLineInput] = useState<string>("100");
   const [rowLineInput, setRowLineInput] = useState<string>("");
   const [curShape, setCurShape] = useState<any>({
-    id: 0,
     x: 20,
     y: 20,
     width: 920,
@@ -43,26 +42,14 @@ export default function Canvas() {
       canvasCtx?.strokeRect(shape.x, shape.y, shape.width, shape.height);
       canvasCtx.fillStyle = shape.clickFlag ? "#993e3ecc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
-      canvasCtx.font = `${
-        shape.width === shape.height
-          ? (shape.height / shape.width) * 10
-          : shape.width > shape.height
-          ? (shape.height / shape.width) * 100
-          : (shape.height / shape.width) * 3
-      }px Arial`;
+      canvasCtx.font = `${10}px Arial`;
       canvasCtx.fillStyle = "black";
       canvasCtx.fillText(
         `宽:${shape.width}mm`,
         shape.x,
         shape.y + shape.height * 0.25
       );
-      canvasCtx.font = `${
-        shape.width === shape.height
-          ? (shape.height / shape.width) * 10
-          : shape.width > shape.height
-          ? (shape.height / shape.width) * 100
-          : (shape.height / shape.width) * 3
-      }px Arial`;
+      canvasCtx.font = `${10}px Arial`;
       canvasCtx.fillStyle = "black";
       canvasCtx.fillText(
         `高:${shape.height}mm`,
@@ -71,7 +58,7 @@ export default function Canvas() {
       );
     });
   };
-  const upDateClickStatus = (X: any, Y: any) => {
+  const upDateClickStatus = (X: number, Y: number) => {
     shapes.forEach((shape: any) => {
       if (
         shape.x <= X &&
@@ -115,7 +102,6 @@ export default function Canvas() {
   const columnShapeSlice = () => {
     if (!canvasCtx) return;
     const shapeConfigA = {
-      id: 0,
       x: curShape.x,
       y: curShape.y,
       width: Number(columnLineInput),
@@ -125,7 +111,6 @@ export default function Canvas() {
       clickFlag: false,
     };
     const shapeConfigB = {
-      id: 1,
       x: curShape.x + Number(columnLineInput),
       y: curShape.y,
       width: curShape.width - Number(columnLineInput),
@@ -140,7 +125,6 @@ export default function Canvas() {
   const rowShapeSlice = () => {
     if (!canvasCtx) return;
     const shapeConfigA = {
-      id: 0,
       x: curShape.x,
       y: curShape.y,
       width: curShape.width,
@@ -150,7 +134,6 @@ export default function Canvas() {
       clickFlag: false,
     };
     const shapeConfigB = {
-      id: 1,
       x: curShape.x,
       y: curShape.y + Number(rowLineInput),
       width: curShape.width,
