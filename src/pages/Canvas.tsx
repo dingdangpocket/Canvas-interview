@@ -18,28 +18,7 @@ export default function Canvas() {
     lineActiveColor: "red",
     clickFlag: true,
   });
-  const [shapes, setShapes] = useState<any>([
-    {
-      id: 1,
-      x: 20,
-      y: 20,
-      width: 300,
-      height: 500,
-      lineUnActiveColor: "black",
-      lineActiveColor: "red",
-      clickFlag: false,
-    },
-    {
-      id: 2,
-      x: 322,
-      y: 20,
-      width: 620,
-      height: 500,
-      lineUnActiveColor: "black",
-      lineActiveColor: "red",
-      clickFlag: false,
-    },
-  ]);
+  const [shapes, setShapes] = useState<any>([]);
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>();
   const [canvasCtx, setCanvasCtx] = useState<CanvasRenderingContext2D>();
   useEffect(() => {
@@ -143,11 +122,12 @@ export default function Canvas() {
     const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
       return item.clickFlag === true;
     });
-    const reHandleShapes = shapes.splice(curIndex, 1);
-    setShapes([...reHandleShapes]);
+    if (curIndex !== -1) {
+      const reHandleShapes = shapes.splice(curIndex, 1);
+      setShapes([...reHandleShapes]);
+    }
     console.log(curIndex);
     columnShapeSlice();
-    console.log(columnLineInput);
   };
   const onAddRowLine = () => {
     console.log(rowLineInput);
