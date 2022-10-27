@@ -16,7 +16,7 @@ export default function Canvas() {
   const [boardWidth, setBoardWidth] = useState<string>("920");
   const [boardHeight, setBoardHeight] = useState<string>("500");
   const [columnLineInput, setColumnLineInput] = useState<string>("100");
-  const [rowLineInput, setRowLineInput] = useState<string>("");
+  const [rowLineInput, setRowLineInput] = useState<string>("100");
   const [curShape, setCurShape] = useState<ShapeType>({
     x: 20,
     y: 20,
@@ -170,7 +170,7 @@ export default function Canvas() {
     }
     if (tag === "rowTag") {
       if (Number(input) >= curShape.height) {
-        alert("左边距超出或等于当前图形,无法追加,请重新输入");
+        alert("上边距超出或等于当前图形,无法追加,请重新输入");
         setRowLineInput("");
         return false;
       }
@@ -245,9 +245,25 @@ export default function Canvas() {
     }
     canvasCtx.lineWidth = 3;
     canvasCtx.strokeStyle = "black";
-    canvasCtx?.strokeRect(20, 20, Number(boardWidth), Number(boardHeight));
+    const x = 960 - Number(boardWidth);
+    const y = 540 - Number(boardHeight);
+    canvasCtx?.strokeRect(
+      x / 2,
+      y / 2,
+      Number(boardWidth),
+      Number(boardHeight)
+    );
     canvasCtx.fillStyle = "white";
-    canvasCtx.fillRect(20, 20, Number(boardWidth), Number(boardHeight));
+    canvasCtx.fillRect(x / 2, y / 2, Number(boardWidth), Number(boardHeight));
+    setCurShape({
+      x: x / 2,
+      y: y / 2,
+      width: Number(boardWidth),
+      height: Number(boardHeight),
+      lineUnActiveColor: "black",
+      lineActiveColor: "red",
+      clickFlag: true,
+    });
     setInitCanvasFlag(true);
   };
   const onClearCanvas = () => {
