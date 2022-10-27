@@ -43,6 +43,23 @@ export default function Canvas() {
       canvasCtx?.strokeRect(shape.x, shape.y, shape.width, shape.height);
       canvasCtx.fillStyle = shape.clickFlag ? "#993e3ecc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
+      canvasCtx.font = `${10}px Arial`;
+      canvasCtx.fillStyle = "black";
+      canvasCtx.fillText(
+        `宽:${shape.width}mm`,
+        shape.x,
+        shape.y + shape.height * 0.25
+      );
+      canvasCtx.font = `${10}px Arial`;
+      canvasCtx.fillStyle = "black";
+      canvasCtx.fillText(
+        `高:${shape.height}mm`,
+        shape.x,
+        shape.y + shape.height * 0.4
+      );
+      // canvasCtx.fillStyle = "black";
+      // canvasCtx.font = "20px Arial";
+      // canvasCtx.fillText(`高:${shape.height}mm`, shape.x, shape.y);
     });
   };
   const upDateClickStatus = (X: any, Y: any) => {
