@@ -1,5 +1,16 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import styles from "./Canvas.module.less";
+
+export type ShapeType = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  lineUnActiveColor: string;
+  lineActiveColor: string;
+  clickFlag: boolean;
+};
+
 export default function Canvas() {
   const [curClientX, setCurClientX] = useState<number | null>(null);
   const [curClientY, setCurClientY] = useState<number | null>(null);
@@ -8,7 +19,7 @@ export default function Canvas() {
   const [boardHeight, setBoardHeight] = useState<string>("500");
   const [columnLineInput, setColumnLineInput] = useState<string>("100");
   const [rowLineInput, setRowLineInput] = useState<string>("");
-  const [curShape, setCurShape] = useState<any>({
+  const [curShape, setCurShape] = useState<ShapeType>({
     x: 20,
     y: 20,
     width: 920,
@@ -17,7 +28,7 @@ export default function Canvas() {
     lineActiveColor: "red",
     clickFlag: true,
   });
-  const [shapes, setShapes] = useState<any>([]);
+  const [shapes, setShapes] = useState<ShapeType[]>([]);
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>();
   const [canvasCtx, setCanvasCtx] = useState<CanvasRenderingContext2D>();
   useEffect(() => {
@@ -27,14 +38,14 @@ export default function Canvas() {
     setCanvasCtx(canvasCtx);
   }, []);
   const onClearShape = () => {
-    shapes.map((shape: any) => {
+    shapes.map((shape: ShapeType) => {
       canvasCtx?.clearRect(shape.x, shape.y, shape.width, shape.height);
     });
   };
-  const renderShape = (newShapes: any) => {
+  const renderShape = (newShapes: ShapeType[]) => {
     if (!canvasCtx) return;
     onClearShape();
-    newShapes.map((shape: any) => {
+    newShapes.map((shape: ShapeType) => {
       canvasCtx.lineWidth = 3;
       canvasCtx.strokeStyle = shape.clickFlag
         ? shape.lineActiveColor
@@ -145,20 +156,25 @@ export default function Canvas() {
     // onClearShape();
     setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
-  const onAddColumnLine = () => {
+  const commonInterceptor = () => {
     if (!initCanvasFlag) {
       alert("请先初始化画布后再增加线条");
-      return;
+      return false;
     }
     if (!columnLineInput) {
       alert("你未输入边距数据,请输入后重试");
-      return;
+      return false;
     }
-    if (columnLineInput >= curShape.width) {
+    if (Number(columnLineInput) >= curShape.width) {
       alert("左边距超出或等于当前图形,无法追加,请重新输入");
       setColumnLineInput("");
-      return;
+      return false;
     }
+    return true;
+  };
+  const onAddColumnLine = () => {
+    const Auth = commonInterceptor();
+    if (!Auth) return;
     const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
       return item.clickFlag === true;
     });
@@ -170,19 +186,8 @@ export default function Canvas() {
     columnShapeSlice();
   };
   const onAddRowLine = () => {
-    if (!initCanvasFlag) {
-      alert("请先初始化画布后再增加线条");
-      return;
-    }
-    if (!columnLineInput) {
-      alert("你未输入边距数据,请输入后重试");
-      return;
-    }
-    if (rowLineInput >= curShape.height) {
-      alert("上边距超出或等于当前图形,无法追加,请重新输入");
-      setRowLineInput("");
-      return;
-    }
+    const Auth = commonInterceptor();
+    if (!Auth) return;
     const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
       return item.clickFlag === true;
     });
@@ -246,6 +251,16 @@ export default function Canvas() {
   };
   const onClearCanvas = () => {
     if (!canvasCtx) return;
+    setShapes([]);
+    setCurShape({
+      x: 20,
+      y: 20,
+      width: 920,
+      height: 500,
+      lineUnActiveColor: "black",
+      lineActiveColor: "red",
+      clickFlag: true,
+    });
     setInitCanvasFlag(false);
     canvasCtx.clearRect(0, 0, 960, 540);
   };
