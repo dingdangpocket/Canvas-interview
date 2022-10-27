@@ -44,7 +44,6 @@ export default function Canvas() {
       canvasCtx.fillStyle = shape.clickFlag ? "#993e3ecc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
     });
-    // canvasRef?.addEventListener("mousedown", onClickListener);
   };
   const upDateClickStatus = (X: any, Y: any) => {
     shapes.forEach((shape: any) => {
@@ -83,7 +82,6 @@ export default function Canvas() {
     getMousePosition(canvasRef, clickEvent);
   };
   useEffect(() => {
-    // canvasRef?.removeEventListener("mousedown", onClickListener);
     renderShape(shapes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shapes]);
@@ -111,7 +109,31 @@ export default function Canvas() {
       clickFlag: false,
     };
     // onClearShape();
-
+    setShapes([...shapes, shapeConfigA, shapeConfigB]);
+  };
+  const rowShapeSlice = () => {
+    if (!canvasCtx) return;
+    const shapeConfigA = {
+      id: 0,
+      x: curShape.x,
+      y: curShape.y,
+      width: curShape.width,
+      height: Number(rowLineInput),
+      lineUnActiveColor: "black",
+      lineActiveColor: "red",
+      clickFlag: false,
+    };
+    const shapeConfigB = {
+      id: 1,
+      x: curShape.x,
+      y: curShape.y + Number(rowLineInput),
+      width: curShape.width,
+      height: curShape.height - Number(rowLineInput),
+      lineUnActiveColor: "black",
+      lineActiveColor: "red",
+      clickFlag: false,
+    };
+    // onClearShape();
     setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
   const onAddColumnLine = () => {
@@ -130,7 +152,19 @@ export default function Canvas() {
     columnShapeSlice();
   };
   const onAddRowLine = () => {
-    console.log(rowLineInput);
+    if (rowLineInput > curShape.height) {
+      alert("左间距超出当前图形,无法追加,请重新输入");
+      setRowLineInput("");
+    }
+    const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
+      return item.clickFlag === true;
+    });
+    if (curIndex !== -1) {
+      const reHandleShapes = shapes.splice(curIndex, 1);
+      setShapes([...reHandleShapes]);
+    }
+    console.log(curIndex);
+    rowShapeSlice();
   };
   const onColumnLineInputRefChange = (
     inputEvent: ChangeEvent<HTMLInputElement>
