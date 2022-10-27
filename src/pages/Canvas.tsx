@@ -61,7 +61,9 @@ export default function Canvas() {
 
   const renderShape = () => {
     if (!canvasCtx) return;
-    onClearShape();
+    console.log("shapes", shapes);
+
+    // onClearShape();
     shapes.map((shape: any) => {
       canvasCtx.lineWidth = 3;
       canvasCtx.strokeStyle = shape.clickFlag
@@ -91,8 +93,17 @@ export default function Canvas() {
     });
     setShapes([...shapes]);
   };
+  const onClick = (clickEvent: MouseEvent) => {
+    if (!canvasRef || !clickEvent) return;
+    console.log("=->", shapes);
+    getMousePosition(canvasRef, clickEvent);
+  };
   useEffect(() => {
     renderShape();
+    canvasRef?.addEventListener("mousedown", onClick);
+    return () => {
+      canvasRef?.removeEventListener("mousemove", onClick);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shapes]);
   const getMousePosition = (
@@ -129,7 +140,7 @@ export default function Canvas() {
       clickFlag: false,
     };
     onClearShape();
-    setShapes([shapeConfigA, shapeConfigB]);
+    setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
   const onAddColumnLine = () => {
     if (columnLineInput > curShape.width) {
@@ -171,77 +182,6 @@ export default function Canvas() {
     const canvasCtx = canvasRef.getContext("2d")! as CanvasRenderingContext2D;
     setCanvasRef(canvasRef);
     setCanvasCtx(canvasCtx);
-    canvasRef.addEventListener("mousedown", (clickEvent: MouseEvent) => {
-      if (!canvasRef || !clickEvent) return;
-      console.log("=>", shapes);
-      getMousePosition(canvasRef, clickEvent);
-    });
-
-    // //正方形;
-    // canvasCtx.fillStyle = "black";
-    // canvasCtx.fillRect(20, 20, 150, 100);
-    // canvasCtx.clearRect(30, 30, 130, 80);
-
-    // //方框
-    // canvasCtx.lineWidth = 5;
-    // canvasCtx.strokeStyle = "white";
-    // canvasCtx.strokeRect(20, 200, 150, 100);
-
-    // //正方形;
-    // canvasCtx.beginPath();
-    // canvasCtx.rect(20, 360, 120, 120);
-    // canvasCtx.fillStyle = "teal";
-    // canvasCtx.fill();
-
-    // //三角形
-    // canvasCtx.beginPath();
-    // canvasCtx.moveTo(350, 20);
-    // canvasCtx.lineTo(500, 20);
-    // canvasCtx.lineTo(425, 180);
-    // canvasCtx.lineTo(350, 20);
-    // canvasCtx.fillStyle = "black";
-    // canvasCtx.stroke();
-    // canvasCtx.fill();
-
-    // Animation 1
-    // const circle = {
-    //   x: 200,
-    //   y: 200,
-    //   size: 30,
-    //   dx: 5,
-    //   dy: 4
-    // };
-
-    // function drawCircle() {
-    //   canvasRef.beginPath();
-    //   canvasRef.arc(circle.x, circle.y, circle.size, 0, Math.PI * 2);
-    //   canvasRef.fillStyle = 'purple';
-    //   canvasRef.fill();
-    // }
-
-    // function update() {
-    //   canvasRef.clearRect(0, 0, canvas.width, canvas.height);
-
-    //   drawCircle();
-
-    //   // change position
-    //   circle.x += circle.dx;
-    //   circle.y += circle.dy;
-
-    //   // Detect side walls
-    //   if (circle.x + circle.size > canvas.width || circle.x - circle.size < 0) {
-    //     circle.dx *= -1;
-    //   }
-
-    //   // Detect top and bottom walls
-    //   if (circle.y + circle.size > canvas.height || circle.y - circle.size < 0) {
-    //     circle.dy *= -1;
-    //   }
-
-    //   requestAnimationFrame(update);
-    // }
-
-    // update();
   }, []);
   const commonTip = (TIP: string) => {
     alert(TIP);
