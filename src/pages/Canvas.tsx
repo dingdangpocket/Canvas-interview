@@ -48,7 +48,7 @@ export default function Canvas() {
           ? (shape.height / shape.width) * 10
           : shape.width > shape.height
           ? (shape.height / shape.width) * 100
-          : (shape.width / shape.height) * 100
+          : (shape.height / shape.width) * 3
       }px Arial`;
       canvasCtx.fillStyle = "black";
       canvasCtx.fillText(
@@ -61,7 +61,7 @@ export default function Canvas() {
           ? (shape.height / shape.width) * 10
           : shape.width > shape.height
           ? (shape.height / shape.width) * 100
-          : (shape.width / shape.height) * 100
+          : (shape.height / shape.width) * 3
       }px Arial`;
       canvasCtx.fillStyle = "black";
       canvasCtx.fillText(
@@ -163,9 +163,18 @@ export default function Canvas() {
     setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
   const onAddColumnLine = () => {
-    if (columnLineInput > curShape.width) {
-      alert("左间距超出当前图形,无法追加,请重新输入");
+    if (!initCanvasFlag) {
+      alert("请先初始化画布后再增加线条");
+      return;
+    }
+    if (!columnLineInput) {
+      alert("你未输入边距数据,请输入后重试");
+      return;
+    }
+    if (columnLineInput >= curShape.width) {
+      alert("左边距超出或等于当前图形,无法追加,请重新输入");
       setColumnLineInput("");
+      return;
     }
     const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
       return item.clickFlag === true;
@@ -178,9 +187,18 @@ export default function Canvas() {
     columnShapeSlice();
   };
   const onAddRowLine = () => {
-    if (rowLineInput > curShape.height) {
-      alert("左间距超出当前图形,无法追加,请重新输入");
+    if (!initCanvasFlag) {
+      alert("请先初始化画布后再增加线条");
+      return;
+    }
+    if (!columnLineInput) {
+      alert("你未输入边距数据,请输入后重试");
+      return;
+    }
+    if (rowLineInput >= curShape.height) {
+      alert("上边距超出或等于当前图形,无法追加,请重新输入");
       setRowLineInput("");
+      return;
     }
     const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
       return item.clickFlag === true;
@@ -250,9 +268,6 @@ export default function Canvas() {
   };
   return (
     <div>
-      {JSON.stringify(curShape)}
-      {JSON.stringify(shapes)}
-      {/* <button onClick={() => renderShape()}>shape</button> */}
       <div>当前点击X坐标:{curClientX}</div>
       <div>当前点击Y坐标:{curClientY}</div>
       <div>画布长:960mm</div>
@@ -306,7 +321,7 @@ export default function Canvas() {
           />
           <span>mm</span>
           <button onClick={() => onAddColumnLine()}>加竖线</button>
-          右边距:
+          上边距:
           <input
             type="text"
             value={rowLineInput}
