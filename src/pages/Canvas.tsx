@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  ChangeEvent,
-  MouseEventHandler,
-} from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import styles from "./Canvas.module.less";
 export default function Canvas() {
   const [curClientX, setCurClientX] = useState<number | null>(null);
@@ -110,7 +104,6 @@ export default function Canvas() {
     getMousePosition(canvasRef, clickEvent);
   };
   useEffect(() => {
-    console.log("=>", shapes, canvasRef);
     // canvasRef?.removeEventListener("mousedown", onClickListener);
     renderShape(shapes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,15 +131,21 @@ export default function Canvas() {
       lineActiveColor: "red",
       clickFlag: false,
     };
-    onClearShape();
-    setShapes([shapeConfigA, shapeConfigB]);
+    // onClearShape();
+
+    setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
   const onAddColumnLine = () => {
     if (columnLineInput > curShape.width) {
       alert("左间距超出当前图形,无法追加,请重新输入");
       setColumnLineInput("");
     }
-
+    const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
+      return item.clickFlag === true;
+    });
+    const reHandleShapes = shapes.splice(curIndex, 1);
+    setShapes([...reHandleShapes]);
+    console.log(curIndex);
     columnShapeSlice();
     console.log(columnLineInput);
   };
