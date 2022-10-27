@@ -6,7 +6,7 @@ export default function Canvas() {
   const [initCanvasFlag, setInitCanvasFlag] = useState<boolean>(false);
   const [boardWidth, setBoardWidth] = useState<string>("920");
   const [boardHeight, setBoardHeight] = useState<string>("500");
-  const [columnLineInput, setColumnLineInput] = useState<string>("");
+  const [columnLineInput, setColumnLineInput] = useState<string>("100");
   const [rowLineInput, setRowLineInput] = useState<string>("");
   const [curShape, setCurShape] = useState<any>({
     id: 0,
@@ -20,35 +20,25 @@ export default function Canvas() {
   });
   const [shapes, setShapes] = useState<any>([
     {
-      id: 0,
+      id: 1,
       x: 20,
       y: 20,
-      width: 920,
+      width: 300,
       height: 500,
       lineUnActiveColor: "black",
       lineActiveColor: "red",
-      clickFlag: true,
+      clickFlag: false,
     },
-    // {
-    //   id: 1,
-    //   x: 20,
-    //   y: 20,
-    //   width: 300,
-    //   height: 300,
-    //   lineUnActiveColor: "black",
-    //   lineActiveColor: "red",
-    //   clickFlag: false,
-    // },
-    // {
-    //   id: 2,
-    //   x: 70,
-    //   y: 20,
-    //   width: 50,
-    //   height: 50,
-    //   lineUnActiveColor: "black",
-    //   lineActiveColor: "red",
-    //   clickFlag: false,
-    // },
+    {
+      id: 2,
+      x: 322,
+      y: 20,
+      width: 620,
+      height: 500,
+      lineUnActiveColor: "black",
+      lineActiveColor: "red",
+      clickFlag: false,
+    },
   ]);
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>();
   const [canvasCtx, setCanvasCtx] = useState<CanvasRenderingContext2D>();
@@ -58,19 +48,16 @@ export default function Canvas() {
       canvasCtx?.clearRect(shape.x, shape.y, shape.width, shape.height);
     });
   };
-
   const renderShape = () => {
     if (!canvasCtx) return;
-    console.log("shapes", shapes);
-
-    // onClearShape();
+    onClearShape();
     shapes.map((shape: any) => {
       canvasCtx.lineWidth = 3;
       canvasCtx.strokeStyle = shape.clickFlag
         ? shape.lineActiveColor
         : shape.lineUnActiveColor;
       canvasCtx?.strokeRect(shape.x, shape.y, shape.width, shape.height);
-      canvasCtx.fillStyle = "white";
+      canvasCtx.fillStyle = shape.clickFlag ? "#993e3ecc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
     });
   };
@@ -84,7 +71,6 @@ export default function Canvas() {
       ) {
         //点击shape;
         shape.clickFlag = !shape.clickFlag;
-
         setCurShape(shape);
       } else {
         //非点击shape;
@@ -93,17 +79,8 @@ export default function Canvas() {
     });
     setShapes([...shapes]);
   };
-  const onClick = (clickEvent: MouseEvent) => {
-    if (!canvasRef || !clickEvent) return;
-    console.log("=->", shapes);
-    getMousePosition(canvasRef, clickEvent);
-  };
   useEffect(() => {
     renderShape();
-    canvasRef?.addEventListener("mousedown", onClick);
-    return () => {
-      canvasRef?.removeEventListener("mousemove", onClick);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shapes]);
   const getMousePosition = (
@@ -117,6 +94,7 @@ export default function Canvas() {
     setCurClientY(Y);
     upDateClickStatus(X, Y);
   };
+
   const columnShapeSlice = () => {
     if (!canvasCtx) return;
     const shapeConfigA = {
@@ -140,13 +118,14 @@ export default function Canvas() {
       clickFlag: false,
     };
     onClearShape();
-    setShapes([...shapes, shapeConfigA, shapeConfigB]);
+    setShapes([shapeConfigA, shapeConfigB]);
   };
   const onAddColumnLine = () => {
     if (columnLineInput > curShape.width) {
       alert("左间距超出当前图形,无法追加,请重新输入");
       setColumnLineInput("");
     }
+    
     columnShapeSlice();
     console.log(columnLineInput);
   };
@@ -182,6 +161,11 @@ export default function Canvas() {
     const canvasCtx = canvasRef.getContext("2d")! as CanvasRenderingContext2D;
     setCanvasRef(canvasRef);
     setCanvasCtx(canvasCtx);
+    canvasRef.addEventListener("mousedown", (clickEvent: MouseEvent) => {
+      if (!canvasRef || !clickEvent) return;
+      console.log("=>", shapes);
+      getMousePosition(canvasRef, clickEvent);
+    });
   }, []);
   const commonTip = (TIP: string) => {
     alert(TIP);
