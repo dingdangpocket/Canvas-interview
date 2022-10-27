@@ -52,14 +52,14 @@ export default function Canvas() {
       canvasCtx.fillStyle = shape.clickFlag ? "#151515cc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
       canvasCtx.font = `${10}px Arial`;
-      canvasCtx.fillStyle = shape.clickFlag ?"white":"black";
+      canvasCtx.fillStyle = shape.clickFlag ? "white" : "black";
       canvasCtx.fillText(
         `宽:${shape.width}mm`,
         shape.x,
         shape.y + shape.height * 0.25
       );
       canvasCtx.font = `${10}px Arial`;
-      canvasCtx.fillStyle = shape.clickFlag ?"white":"black";
+      canvasCtx.fillStyle = shape.clickFlag ? "white" : "black";
       canvasCtx.fillText(
         `高:${shape.height}mm`,
         shape.x,
@@ -152,19 +152,28 @@ export default function Canvas() {
     };
     setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
-  const commonInterceptor = () => {
+  const commonInterceptor = (input: string, tag: string) => {
     if (!initCanvasFlag) {
       alert("请先初始化画布后再增加线条");
       return false;
     }
-    if (!columnLineInput) {
+    if (!input) {
       alert("你未输入边距数据,请输入后重试");
       return false;
     }
-    if (Number(columnLineInput) >= curShape.width) {
-      alert("左边距超出或等于当前图形,无法追加,请重新输入");
-      setColumnLineInput("");
-      return false;
+    if (tag === "colTag") {
+      if (Number(input) >= curShape.width) {
+        alert("左边距超出或等于当前图形,无法追加,请重新输入");
+        setColumnLineInput("");
+        return false;
+      }
+    }
+    if (tag === "rowTag") {
+      if (Number(input) >= curShape.height) {
+        alert("左边距超出或等于当前图形,无法追加,请重新输入");
+        setRowLineInput("");
+        return false;
+      }
     }
     return true;
   };
@@ -179,13 +188,13 @@ export default function Canvas() {
     }
   };
   const onAddColumnLine = () => {
-    const Auth = commonInterceptor();
+    const Auth = commonInterceptor(columnLineInput, "colTag");
     if (!Auth) return;
     commonRehandleShapes();
     columnShapeSlice();
   };
   const onAddRowLine = () => {
-    const Auth = commonInterceptor();
+    const Auth = commonInterceptor(rowLineInput, "rowTag");
     if (!Auth) return;
     commonRehandleShapes();
     rowShapeSlice();
