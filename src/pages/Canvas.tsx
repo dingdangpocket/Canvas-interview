@@ -1,6 +1,5 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import styles from "./Canvas.module.less";
-
 export type ShapeType = {
   x: number;
   y: number;
@@ -10,7 +9,6 @@ export type ShapeType = {
   lineActiveColor: string;
   clickFlag: boolean;
 };
-
 export default function Canvas() {
   const [curClientX, setCurClientX] = useState<number | null>(null);
   const [curClientY, setCurClientY] = useState<number | null>(null);
@@ -25,7 +23,7 @@ export default function Canvas() {
     width: 920,
     height: 500,
     lineUnActiveColor: "black",
-    lineActiveColor: "red",
+    lineActiveColor: "white",
     clickFlag: true,
   });
   const [shapes, setShapes] = useState<ShapeType[]>([]);
@@ -51,17 +49,17 @@ export default function Canvas() {
         ? shape.lineActiveColor
         : shape.lineUnActiveColor;
       canvasCtx?.strokeRect(shape.x, shape.y, shape.width, shape.height);
-      canvasCtx.fillStyle = shape.clickFlag ? "#993e3ecc" : "white";
+      canvasCtx.fillStyle = shape.clickFlag ? "#151515cc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
       canvasCtx.font = `${10}px Arial`;
-      canvasCtx.fillStyle = "black";
+      canvasCtx.fillStyle = shape.clickFlag ?"white":"black";
       canvasCtx.fillText(
         `宽:${shape.width}mm`,
         shape.x,
         shape.y + shape.height * 0.25
       );
       canvasCtx.font = `${10}px Arial`;
-      canvasCtx.fillStyle = "black";
+      canvasCtx.fillStyle = shape.clickFlag ?"white":"black";
       canvasCtx.fillText(
         `高:${shape.height}mm`,
         shape.x,
@@ -118,7 +116,7 @@ export default function Canvas() {
       width: Number(columnLineInput),
       height: curShape.height,
       lineUnActiveColor: "black",
-      lineActiveColor: "red",
+      lineActiveColor: "gray",
       clickFlag: false,
     };
     const shapeConfigB = {
@@ -127,10 +125,9 @@ export default function Canvas() {
       width: curShape.width - Number(columnLineInput),
       height: curShape.height,
       lineUnActiveColor: "black",
-      lineActiveColor: "red",
+      lineActiveColor: "gray",
       clickFlag: false,
     };
-    // onClearShape();
     setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
   const rowShapeSlice = () => {
@@ -141,7 +138,7 @@ export default function Canvas() {
       width: curShape.width,
       height: Number(rowLineInput),
       lineUnActiveColor: "black",
-      lineActiveColor: "red",
+      lineActiveColor: "gray",
       clickFlag: false,
     };
     const shapeConfigB = {
@@ -150,10 +147,9 @@ export default function Canvas() {
       width: curShape.width,
       height: curShape.height - Number(rowLineInput),
       lineUnActiveColor: "black",
-      lineActiveColor: "red",
+      lineActiveColor: "gray",
       clickFlag: false,
     };
-    // onClearShape();
     setShapes([...shapes, shapeConfigA, shapeConfigB]);
   };
   const commonInterceptor = () => {
@@ -172,9 +168,8 @@ export default function Canvas() {
     }
     return true;
   };
-  const onAddColumnLine = () => {
-    const Auth = commonInterceptor();
-    if (!Auth) return;
+
+  const commonRehandleShapes = () => {
     const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
       return item.clickFlag === true;
     });
@@ -182,20 +177,17 @@ export default function Canvas() {
       const reHandleShapes = shapes.splice(curIndex, 1);
       setShapes([...reHandleShapes]);
     }
-    console.log(curIndex);
+  };
+  const onAddColumnLine = () => {
+    const Auth = commonInterceptor();
+    if (!Auth) return;
+    commonRehandleShapes();
     columnShapeSlice();
   };
   const onAddRowLine = () => {
     const Auth = commonInterceptor();
     if (!Auth) return;
-    const curIndex = shapes.findIndex((item: { clickFlag: boolean }) => {
-      return item.clickFlag === true;
-    });
-    if (curIndex !== -1) {
-      const reHandleShapes = shapes.splice(curIndex, 1);
-      setShapes([...reHandleShapes]);
-    }
-    console.log(curIndex);
+    commonRehandleShapes();
     rowShapeSlice();
   };
   const onColumnLineInputRefChange = (
@@ -266,13 +258,13 @@ export default function Canvas() {
   };
   return (
     <div>
-      <div>当前点击X坐标:{curClientX}</div>
-      <div>当前点击Y坐标:{curClientY}</div>
-      <div>画布长:960mm</div>
-      <div>画布宽:540mm</div>
-      <div>最大画板长:920mm</div>
-      <div>最大画板宽:500mm</div>
-      <div className={styles.footerControl}>
+      <div>画布宽:960mm</div>
+      <div>画布高:540mm</div>
+      <div className={styles.headerControl}>
+        <div>点击X坐标:{curClientX}</div>
+        <div>点击Y坐标:{curClientY}</div>
+        <div>最大画板宽:920mm</div>
+        <div>最大画板高:500mm</div>
         <div>
           宽:
           <input
@@ -281,7 +273,7 @@ export default function Canvas() {
             placeholder="请输入画板宽度"
             onChange={onBoardWidthChange}
           />
-          <span>mm</span>
+          <span>毫米(毫米(mm))</span>
         </div>
         <div>
           高:
@@ -291,7 +283,7 @@ export default function Canvas() {
             placeholder="请输入画板高度"
             onChange={onBoardHeightChange}
           />
-          <span>mm</span>
+          <span>毫米(mm)</span>
         </div>
         <div>
           <button onClick={() => onInitCanvas()}>初始画板</button>
@@ -301,34 +293,36 @@ export default function Canvas() {
         </div>
       </div>
       <div className={styles.canvas}>
-        <canvas
-          id="canvas"
-          width="960"
-          height="540"
-          onClick={(
-            clickEvent: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-          ) => onClickListener(clickEvent)}
-        ></canvas>
-        <div className={styles.footerControl}>
-          左边距:
-          <input
-            type="text"
-            value={columnLineInput}
-            placeholder="请输入内容"
-            onChange={onColumnLineInputRefChange}
-          />
-          <span>mm</span>
-          <button onClick={() => onAddColumnLine()}>加竖线</button>
-          上边距:
-          <input
-            type="text"
-            value={rowLineInput}
-            placeholder="请输入内容"
-            onChange={onRowLineInputRefChange}
-          />
-          <span>mm</span>
-          <button onClick={() => onAddRowLine()}>加横线</button>
+        <div>
+          <canvas
+            id="canvas"
+            width="960"
+            height="540"
+            onClick={(
+              clickEvent: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+            ) => onClickListener(clickEvent)}
+          ></canvas>
         </div>
+      </div>
+      <div className={styles.footerControl}>
+        左边距:
+        <input
+          type="text"
+          value={columnLineInput}
+          placeholder="请输入左边距"
+          onChange={onColumnLineInputRefChange}
+        />
+        <span>毫米(mm)</span>
+        <button onClick={() => onAddColumnLine()}>加竖线</button>
+        上边距:
+        <input
+          type="text"
+          value={rowLineInput}
+          placeholder="请输入上边距"
+          onChange={onRowLineInputRefChange}
+        />
+        <span>毫米(mm)</span>
+        <button onClick={() => onAddRowLine()}>加横线</button>
       </div>
     </div>
   );
