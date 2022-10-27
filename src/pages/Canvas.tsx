@@ -1,4 +1,10 @@
-import { useEffect, useState, useRef, ChangeEvent } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  ChangeEvent,
+  MouseEventHandler,
+} from "react";
 import styles from "./Canvas.module.less";
 export default function Canvas() {
   const [curClientX, setCurClientX] = useState<number | null>(null);
@@ -42,16 +48,21 @@ export default function Canvas() {
   ]);
   const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement>();
   const [canvasCtx, setCanvasCtx] = useState<CanvasRenderingContext2D>();
-
+  useEffect(() => {
+    const canvasRef = document.getElementById("canvas") as HTMLCanvasElement;
+    const canvasCtx = canvasRef.getContext("2d")! as CanvasRenderingContext2D;
+    setCanvasRef(canvasRef);
+    setCanvasCtx(canvasCtx);
+  }, []);
   const onClearShape = () => {
     shapes.map((shape: any) => {
       canvasCtx?.clearRect(shape.x, shape.y, shape.width, shape.height);
     });
   };
-  const renderShape = () => {
+  const renderShape = (newShapes: any) => {
     if (!canvasCtx) return;
     onClearShape();
-    shapes.map((shape: any) => {
+    newShapes.map((shape: any) => {
       canvasCtx.lineWidth = 3;
       canvasCtx.strokeStyle = shape.clickFlag
         ? shape.lineActiveColor
@@ -60,6 +71,7 @@ export default function Canvas() {
       canvasCtx.fillStyle = shape.clickFlag ? "#993e3ecc" : "white";
       canvasCtx.fillRect(shape.x, shape.y, shape.width, shape.height);
     });
+    // canvasRef?.addEventListener("mousedown", onClickListener);
   };
   const upDateClickStatus = (X: any, Y: any) => {
     shapes.forEach((shape: any) => {
@@ -79,13 +91,9 @@ export default function Canvas() {
     });
     setShapes([...shapes]);
   };
-  useEffect(() => {
-    renderShape();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shapes]);
   const getMousePosition = (
     canvasRef: HTMLCanvasElement,
-    clickEvent: MouseEvent
+    clickEvent: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     let viewRect = canvasRef.getBoundingClientRect();
     let X = clickEvent.clientX - viewRect.left;
@@ -94,6 +102,19 @@ export default function Canvas() {
     setCurClientY(Y);
     upDateClickStatus(X, Y);
   };
+
+  const onClickListener = (
+    clickEvent: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+  ) => {
+    if (!canvasRef || !clickEvent) return;
+    getMousePosition(canvasRef, clickEvent);
+  };
+  useEffect(() => {
+    console.log("=>", shapes, canvasRef);
+    // canvasRef?.removeEventListener("mousedown", onClickListener);
+    renderShape(shapes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shapes]);
 
   const columnShapeSlice = () => {
     if (!canvasCtx) return;
@@ -125,7 +146,7 @@ export default function Canvas() {
       alert("左间距超出当前图形,无法追加,请重新输入");
       setColumnLineInput("");
     }
-    
+
     columnShapeSlice();
     console.log(columnLineInput);
   };
@@ -156,17 +177,7 @@ export default function Canvas() {
     setBoardHeight(authValue);
     console.log(inputEvent?.target?.value);
   };
-  useEffect(() => {
-    const canvasRef = document.getElementById("canvas") as HTMLCanvasElement;
-    const canvasCtx = canvasRef.getContext("2d")! as CanvasRenderingContext2D;
-    setCanvasRef(canvasRef);
-    setCanvasCtx(canvasCtx);
-    canvasRef.addEventListener("mousedown", (clickEvent: MouseEvent) => {
-      if (!canvasRef || !clickEvent) return;
-      console.log("=>", shapes);
-      getMousePosition(canvasRef, clickEvent);
-    });
-  }, []);
+
   const commonTip = (TIP: string) => {
     alert(TIP);
     setBoardWidth("");
@@ -198,12 +209,11 @@ export default function Canvas() {
     setInitCanvasFlag(false);
     canvasCtx.clearRect(0, 0, 960, 540);
   };
-
   return (
     <div>
       {JSON.stringify(curShape)}
       {JSON.stringify(shapes)}
-      <button onClick={() => renderShape()}>shape</button>
+      {/* <button onClick={() => renderShape()}>shape</button> */}
       <div>当前点击X坐标:{curClientX}</div>
       <div>当前点击Y坐标:{curClientY}</div>
       <div>画布长:960mm</div>
@@ -239,7 +249,14 @@ export default function Canvas() {
         </div>
       </div>
       <div className={styles.canvas}>
-        <canvas id="canvas" width="960" height="540"></canvas>
+        <canvas
+          id="canvas"
+          width="960"
+          height="540"
+          onClick={(
+            clickEvent: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+          ) => onClickListener(clickEvent)}
+        ></canvas>
         <div className={styles.footerControl}>
           左边距:
           <input
